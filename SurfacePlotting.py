@@ -12,7 +12,7 @@ class PlotSurfaces(object):
 
     def __init__(self,
                  meshes,
-                 backgrounds,
+                 backgrounds = None,
                  labels = None,
                  cmap = 'jet',
                  dmin = 0,
@@ -36,9 +36,10 @@ class PlotSurfaces(object):
         self.coords_['lh'], self.faces_['lh'] = self.check_surf_mesh(0)
         self.coords_['rh'], self.faces_['rh'] = self.check_surf_mesh(1)
 
-        self.bgs_ = {}
-        self.bgs_['lh'] = self.check_surf_data(0)
-        self.bgs_['rh'] = self.check_surf_data(1)
+        if self.backgrounds is not None:
+            self.bgs_ = {}
+            self.bgs_['lh'] = self.check_surf_data(0)
+            self.bgs_['rh'] = self.check_surf_data(1)
 
         self.cortex_ = {}
         if self.labels is not None:
@@ -99,6 +100,7 @@ class PlotSurfaces(object):
 
         from nilearn._utils.compat import _basestring
         import nibabel
+        import numpy as np
 
         surf_data = self.backgrounds[index]
 
@@ -248,6 +250,7 @@ class PlotSurfaces(object):
         import matplotlib.pyplot as plt
         import matplotlib.tri as tri
         from mpl_toolkits.mplot3d import Axes3D
+        import numpy as np
 
         # load mesh and derive axes limits
         #coords, faces = check_surf_mesh(surf_mesh)
