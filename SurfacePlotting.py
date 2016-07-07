@@ -12,7 +12,7 @@ class PlotSurfaces(object):
 
     def __init__(self,
                  meshes,
-                 backgrounds,
+                 backgrounds = None,
                  labels = None,
                  cmap = 'jet',
                  dmin = 0,
@@ -37,8 +37,10 @@ class PlotSurfaces(object):
         self.coords_['rh'], self.faces_['rh'] = self.check_surf_mesh(1)
 
         self.bgs_ = {}
-        self.bgs_['lh'] = self.check_surf_data(0)
-        self.bgs_['rh'] = self.check_surf_data(1)
+
+        if backgrounds is not None:
+            self.bgs_['lh'] = self.check_surf_data(0)
+            self.bgs_['rh'] = self.check_surf_data(1)
 
         self.cortex_ = {}
         if self.labels is not None:
@@ -368,10 +370,6 @@ class PlotSurfaces(object):
             plt.close(fig)
         else:
             return fig
-
-
-    def get_grid(self, ):
-
 
     def add_plots(self, data, name = None, bg = True, view = 'all', hemi = 'both', cmap = 'jet'):
 
