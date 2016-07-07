@@ -12,7 +12,7 @@ class PlotSurfaces(object):
 
     def __init__(self,
                  meshes,
-                 backgrounds = None,
+                 backgrounds,
                  labels = None,
                  cmap = 'jet',
                  dmin = 0,
@@ -36,10 +36,9 @@ class PlotSurfaces(object):
         self.coords_['lh'], self.faces_['lh'] = self.check_surf_mesh(0)
         self.coords_['rh'], self.faces_['rh'] = self.check_surf_mesh(1)
 
-        if self.backgrounds is not None:
-            self.bgs_ = {}
-            self.bgs_['lh'] = self.check_surf_data(0)
-            self.bgs_['rh'] = self.check_surf_data(1)
+        self.bgs_ = {}
+        self.bgs_['lh'] = self.check_surf_data(0)
+        self.bgs_['rh'] = self.check_surf_data(1)
 
         self.cortex_ = {}
         if self.labels is not None:
@@ -49,6 +48,28 @@ class PlotSurfaces(object):
         self.plots_ = {}
         self.hind_ = {}
 
+        self.views = {}
+
+        self.gen_standard_views()
+
+    def gen_standard_views(self):
+
+        views = ['medial','lateral','dorsal','ventral']
+        hemis = ['lh','rh']
+
+        for v in views:
+            self.views[v] = {}
+            for h in hemis:
+                self.views[v][h] = []
+
+        self.views['lateral']['rh'] = (0,0)
+        self.views['lateral']['lh'] = (0,180)
+        self.views['medial']['rh'] = (0,180)
+        self.views['medial']['lh'] = (0,0)
+        self.views['dorsal']['rh'] = (90,0)
+        self.views['dorsal']['lh'] = (90,0)
+        self.views['ventral']['rh'] = (270,0)
+        self.views['ventral']['lh'] = (270,0)
 
     def _get_plot_stat_map_params(self, stat_map_data, vmax, symmetric_cbar, kwargs,
         force_min_stat_map_value=None):
@@ -100,7 +121,6 @@ class PlotSurfaces(object):
 
         from nilearn._utils.compat import _basestring
         import nibabel
-        import numpy as np
 
         surf_data = self.backgrounds[index]
 
@@ -250,39 +270,16 @@ class PlotSurfaces(object):
         import matplotlib.pyplot as plt
         import matplotlib.tri as tri
         from mpl_toolkits.mplot3d import Axes3D
-        import numpy as np
 
         # load mesh and derive axes limits
         #coords, faces = check_surf_mesh(surf_mesh)
         limits = [self.coords_[hemi].min(), self.coords_[hemi].max()]
 
         # set view
-        if hemi == 'rh':
-            if view == 'lateral':
-                elev, azim = 0, 0
-            elif view == 'medial':
-                elev, azim = 0, 180
-            elif view == 'dorsal':
-                elev, azim = 90, 0
-            elif view == 'ventral':
-                elev, azim = 270, 0
-            else:
-                raise ValueError('view must be one of lateral, medial, '
-                                 'dorsal or ventral')
-        elif hemi == 'lh':
-            if view == 'medial':
-                elev, azim = 0, 0
-            elif view == 'lateral':
-                elev, azim = 0, 180
-            elif view == 'dorsal':
-                elev, azim = 90, 0
-            elif view == 'ventral':
-                elev, azim = 270, 0
-            else:
-                raise ValueError('view must be one of lateral, medial, '
-                                 'dorsal or ventral')
-        else:
-            raise ValueError('hemi must be one of rh or lh')
+        try:
+            elev, azim = self.views[view][hemi]
+        except:
+            print "There is no such standard view"
 
         # set alpha if in auto mode
         if alpha == 'auto':
@@ -371,6 +368,9 @@ class PlotSurfaces(object):
             plt.close(fig)
         else:
             return fig
+
+
+    def get_grid(self, ):
 
 
     def add_plots(self, data, name = None, bg = True, view = 'all', hemi = 'both', cmap = 'jet'):
